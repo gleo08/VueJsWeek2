@@ -10,8 +10,8 @@
     </ul>
     <p class="analyzer">Quantity of product: {{countProduct(items)}}</p>
     <p class="analyzer">Quantity of sale product: {{countProductSale(items)}}</p>
-    <p class="analyzer">Value of all products: {{valueOfProducts(items)}}</p>
-    <p class="analyzer">Average price of products: {{normalize(valueOfProducts(items) / countProduct(items))}}</p>
+    <p class="analyzer">Value of all products: {{priceUsd(valueOfProducts(items))}}</p>
+    <p class="analyzer">Average price of products: {{priceUsd(valueOfProducts(items) / countProduct(items))}}</p>
 
   </div>
 </template>
@@ -90,17 +90,12 @@ export default {
       }
       return sum
     }
-
-    const normalize = (value) => {
-      return value.toFixed(2)
-    }
     return {
       items,
       priceUsd,
       countProduct,
       countProductSale,
       valueOfProducts,
-      normalize,
     }
   },
 }
