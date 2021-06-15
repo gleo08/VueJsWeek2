@@ -1,4 +1,5 @@
 <template>
+  <input @keyup="searchProduct">
   <div class="big">
     <ul class="detail">
       <li class="list" v-for="item in items" :key="item.id">
@@ -8,12 +9,20 @@
           </div>
       </li>
     </ul>
-    <p class="analyzer">Quantity of product: {{countProduct(items)}}</p>
-    <p class="analyzer">Quantity of sale product: {{countProductSale(items)}}</p>
-    <p class="analyzer">Value of all products: {{priceUsd(valueOfProducts(items))}}</p>
-    <p class="analyzer">Average price of products: {{priceUsd(valueOfProducts(items) / countProduct(items))}}</p>
-
   </div>
+
+  <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="inputGroupSelect01">Options</label>
+  </div>
+  <select v-model="selected" @change="optionSort(selected)" class="custom-select" id="inputGroupSelect01">
+    <option selected disable value="">Choose...</option>
+    <option value="1">Sort by A-Z</option>
+    <option value="2">Sort by Z-A</option>
+  </select>
+  <p>Value selected: {{ selected }}</p>
+</div>
+
 </template>
 
 <script>
@@ -23,11 +32,13 @@ import image3 from "./asset/3.jpg"
 import image4 from "./asset/4.jpg"
 import image5 from "./asset/5.jpg"
 import image6 from "./asset/6.jpg"
+import {ref} from "vue"
 
 export default {
   name: "App",
   setup() {
-    const items = [
+    const selected = ref("")
+    const items = ref([
       {
         id: 1,
         name: "Jordan 1",
@@ -70,28 +81,63 @@ export default {
         price: 3000,
         sale: true,
       },
-  ]
+  ])
     const priceUsd = (value) => {
       return '$' + value.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     }
 
-    const countProduct = (items) =>{
-      return items.length
+    const countProduct = () =>{
+      return items.value.length
     }
 
-    const countProductSale = (items) =>{
-      return items.filter(items => items.sale).length
+    const countProductSale = () =>{
+      return items.value.filter(items => items.sale).length
     }
 
-    const valueOfProducts = (items) => {
+    const valueOfProducts = () => {
       var sum = 0
       for (let i in items) {
-        sum += items[i].price
+        sum += items.value[i].price
       }
       return sum
     }
+    
+    const sort1 = () => {
+      items.value.sort((p1, p2) => {
+        return p1.price - p2.price
+      })
+    }
+
+    const sort2 = () => {
+      console.log(1)
+      items.value.sort((p1, p2) => {
+        return p2.price - p1.price;
+      })
+    }
+
+    const optionSort = (value) => {
+      if (value == 1) {
+        sort1();
+      }
+      if (value == 2) {
+        sort2();
+      }
+    }
+
+    const searchProduct = (e) => {
+      console.log(e.target.value)
+      let regexValue = new RegExp(e.target.value)
+      console.log(regexValue)
+      items.value = items.value.filter((item) => {
+        return item.name.match(regexValue)
+      })
+    }
+
     return {
+      selected,
+      searchProduct,
       items,
+      optionSort,
       priceUsd,
       countProduct,
       countProductSale,
