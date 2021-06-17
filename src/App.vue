@@ -125,7 +125,8 @@ export default {
     const optionSort = (e) => {
       if (e.target.value == 1) {
         sort1();
-      } else {
+      } 
+      if (e.target.value == 2) {
         sort2();
       }
     }
