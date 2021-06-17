@@ -1,28 +1,30 @@
 <template>
-  <input @keyup="searchProduct">
+  <div class="ss">
+    <div class="input-group rounded">
+      <input type="search" @keyup="searchProduct" class="form-control rounded" placeholder="Search" aria-label="Search"
+    aria-describedby="search-addon" />
+    </div>
+    <select @change="optionSort" class="custom-select" id="inputGroupSelect01">
+        <option selected disable value="">Choose...</option>
+        <option value="1">Sort by A-Z</option>
+        <option value="2">Sort by Z-A</option>
+      </select>
+  </div>
   <div class="big">
     <ul class="detail">
-      <li class="list" v-for="item in items" :key="item.id">
+      <li class="list" v-for="item in itemsDisplay" :key="item.id">
           <div class="product">
             <img class="image" v-bind:src="item.src"/>
             <p class="info">{{ item.name }} - {{priceUsd(item.price)}}</p>
           </div>
       </li>
     </ul>
+    <div class="analyzer">
+      <p>Product quantity: {{countProduct()}}</p>
+      <p>Value of all products: {{priceUsd(valueOfProducts())}}</p>
+      <p>Sale product: {{countProductSale()}}</p>
+    </div>
   </div>
-
-  <div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">Options</label>
-  </div>
-  <select v-model="selected" @change="optionSort(selected)" class="custom-select" id="inputGroupSelect01">
-    <option selected disable value="">Choose...</option>
-    <option value="1">Sort by A-Z</option>
-    <option value="2">Sort by Z-A</option>
-  </select>
-  <p>Value selected: {{ selected }}</p>
-</div>
-
 </template>
 
 <script>
@@ -32,13 +34,12 @@ import image3 from "./asset/3.jpg"
 import image4 from "./asset/4.jpg"
 import image5 from "./asset/5.jpg"
 import image6 from "./asset/6.jpg"
-import {ref} from "vue"
+import {ref, onMounted} from "vue"
 
 export default {
   name: "App",
   setup() {
-    const selected = ref("")
-    const items = ref([
+    const items = [
       {
         id: 1,
         name: "Jordan 1",
@@ -81,62 +82,64 @@ export default {
         price: 3000,
         sale: true,
       },
-  ])
+  ]
+
+    const itemsDisplay = ref([])
+
+    onMounted(() => {
+      itemsDisplay.value = items
+    })
+
     const priceUsd = (value) => {
       return '$' + value.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     }
 
     const countProduct = () =>{
-      return items.value.length
+      return items.length
     }
 
     const countProductSale = () =>{
-      return items.value.filter(items => items.sale).length
+      return items.filter(items => items.sale).length
     }
 
     const valueOfProducts = () => {
       var sum = 0
       for (let i in items) {
-        sum += items.value[i].price
+        sum += items[i].price
       }
       return sum
     }
     
     const sort1 = () => {
-      items.value.sort((p1, p2) => {
+      itemsDisplay.value = itemsDisplay.value.sort((p1, p2) => {
         return p1.price - p2.price
       })
     }
 
     const sort2 = () => {
-      console.log(1)
-      items.value.sort((p1, p2) => {
+      itemsDisplay.value = itemsDisplay.value.sort((p1, p2) => {
         return p2.price - p1.price;
       })
     }
 
-    const optionSort = (value) => {
-      if (value == 1) {
+    const optionSort = (e) => {
+      if (e.target.value == 1) {
         sort1();
-      }
-      if (value == 2) {
+      } else {
         sort2();
       }
     }
 
     const searchProduct = (e) => {
-      console.log(e.target.value)
-      let regexValue = new RegExp(e.target.value)
-      console.log(regexValue)
-      items.value = items.value.filter((item) => {
+      let regexValue = new RegExp(e.target.value, "i")
+      itemsDisplay.value = items.filter((item) => {
         return item.name.match(regexValue)
       })
     }
 
     return {
-      selected,
+      itemsDisplay,
       searchProduct,
-      items,
       optionSort,
       priceUsd,
       countProduct,
@@ -148,6 +151,23 @@ export default {
 </script>
 
 <style scoped>
+
+.ss {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-group {
+  width: 50%;
+  height: 30px;
+}
+.form-control {
+  height: 100%;
+  width: 80%;
+}
+
 .big {
   width: calc(100% - 160px);
   padding: 80px;
@@ -160,11 +180,12 @@ export default {
   padding: 0px;
 }
 .image {
-  height: 300px;
+  height: auto;
   width: 100%;
+  max-width: 100%;
 }
 .info {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: bold;
 }
 .product {
@@ -172,6 +193,7 @@ export default {
 }
 .list {
   width: calc(100%/3);
+  list-style-type: none;
 }
 .analyzer {
   font-size: 30px;
@@ -180,6 +202,9 @@ export default {
 @media (max-width: 768px) {
   .list {
     width: calc(100%/2);
+  }
+  .info {
+    font-size: 13px;
   }
 }
 
